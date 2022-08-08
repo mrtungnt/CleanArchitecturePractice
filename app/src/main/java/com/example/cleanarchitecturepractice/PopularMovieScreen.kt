@@ -6,5 +6,9 @@ import androidx.compose.runtime.collectAsState
 
 @Composable
 fun PopularMoviesScreen(viewModel: PopularMoviesViewModel) {
-    Text(text = viewModel.uiStateFlow.collectAsState().value)
+    val state = viewModel.uiState.collectAsState()
+    Text(
+        text = state.value.movieList?.results?.get(0)?.original_title
+            ?: state.value.exceptionDescription ?: ""
+    )
 }

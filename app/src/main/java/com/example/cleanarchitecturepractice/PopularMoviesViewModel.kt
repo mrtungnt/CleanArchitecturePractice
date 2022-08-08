@@ -1,33 +1,37 @@
 package com.example.cleanarchitecturepractice
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cleanarchitecturepractice.data.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class PopularMoviesViewModel @Inject constructor(private val movieRepository: MovieRepository) :
     ViewModel() {
-    val uiStateFlow = MutableStateFlow("Starting...")
+    var uiState = MutableStateFlow(UIState())
 
     init {
         viewModelScope.launch {
             val r = movieRepository.getPopularMovies()
-            if (r.isFailure) {
-                uiStateFlow.update {
-                    println("old value: $it");r.exceptionOrNull()?.message
-                    ?: "Unspecified exception"
-                }
+            if (r.isSuccess) {
+                uiState.update { it.copy(movieList = r.getOrNull()) }
             } else {
-                uiStateFlow.update { r.getOrNull()?.results?.get(0)?.original_title ?: "" }
+                uiState.update {
+                    it.copy(
+                        exceptionDescription = r.exceptionOrNull()?.message
+                            ?: "Unspecified exception"
+                    )
+                }
             }
         }
     }
 }
+
+data class UIState(val movieList: MovieList? = null, val exceptionDescription: String? = null)

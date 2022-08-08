@@ -20,7 +20,7 @@ object MovieAPIImpl : MovieAPI {
 
     override suspend fun getPopularMovies(): Result<MovieList> {
         val response: HttpResponse =
-            client.get("${BuildConfig.tmdb_base_url}/movie/popular?page=510") {
+            client.get("${BuildConfig.tmdb_base_url}/movie/popular?page=500") {
                 this.parameter("api_key", BuildConfig.api_key)
             }
         val result: MovieList?
